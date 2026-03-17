@@ -14,6 +14,16 @@ pip install -r requirements.txt
 python -m src.ingest
 ```
 
+3) Embed articles (after ingest):
+```
+python -m pipeline.embed_articles
+```
+
+4) Build user interest embeddings (after interactions exist):
+```
+python -m pipeline.build_user_interests
+```
+
 ## What it does
 - Loads feed URLs from `config/feeds.json`
 - Parses RSS entries, normalizes fields, and fetches full article content

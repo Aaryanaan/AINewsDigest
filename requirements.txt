@@ -5,3 +5,6 @@ tenacity>=8.2.3
 tldextract>=3.6.0
 lxml_html_clean>=0.4.1
 httpx>=0.28.1
+sentence-transformers>=3.2.1
+numpy>=1.26.4
+pydantic>=2.6.4

@@ -66,6 +66,7 @@ class InteractionStore:
     """
 
     def __init__(self, conn: sqlite3.Connection):
+        conn.row_factory = sqlite3.Row
         self.conn = conn
 
     # ── Write ─────────────────────────────────────────────────────────────

@@ -16,9 +16,12 @@ import uuid
 import sqlite3
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
+import numpy as np
 from pydantic import BaseModel, Field, EmailStr, field_validator
+
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 
 # ---------------------------------------------------------------------------
@@ -157,6 +160,7 @@ def get_all_active_users(conn: sqlite3.Connection) -> List[UserProfile]:
 # ---------------------------------------------------------------------------
 
 def _user_to_row(u: UserProfile) -> dict:
+    emb_bytes, emb_dim = _encode_embedding(u.interests.interest_embedding)
     return {
         "user_id": u.user_id,
         "email": u.email,
@@ -170,8 +174,9 @@ def _user_to_row(u: UserProfile) -> dict:
         "blocked_sources": json.dumps(u.preferences.blocked_sources),
         "language": u.preferences.language,
         "reading_level": u.preferences.reading_level,
-        "interest_embedding": json.dumps(u.interests.interest_embedding)
-            if u.interests.interest_embedding else None,
+        "interest_embedding": emb_bytes,
+        "interest_embedding_dim": emb_dim,
+        "interest_embedding_model": EMBEDDING_MODEL if emb_bytes else None,
         "interest_topics": json.dumps(u.interests.interest_topics),
         "last_profile_update_at": u.interests.last_profile_update_at.isoformat()
             if u.interests.last_profile_update_at else None,
@@ -182,6 +187,9 @@ def _user_to_row(u: UserProfile) -> dict:
 
 
 def _row_to_user(row: sqlite3.Row) -> UserProfile:
+    emb_list = _decode_embedding(row["interest_embedding"], row["interest_embedding_dim"])
+    last_updated = _parse_datetime(row["last_profile_update_at"])
+
     return UserProfile(
         user_id=row["user_id"],
         email=row["email"],
@@ -198,15 +206,47 @@ def _row_to_user(row: sqlite3.Row) -> UserProfile:
             reading_level=row["reading_level"],
         ),
         interests=UserInterestProfile(
-            interest_embedding=json.loads(row["interest_embedding"])
-                if row["interest_embedding"] else None,
+            interest_embedding=emb_list,
             interest_topics=json.loads(row["interest_topics"] or "[]"),
-            last_profile_update_at=row["last_profile_update_at"],
+            last_profile_update_at=last_updated,
         ),
         is_active=bool(row["is_active"]),
-        created_at=row["created_at"],
-        updated_at=row["updated_at"],
+        created_at=_parse_datetime(row["created_at"]),
+        updated_at=_parse_datetime(row["updated_at"]),
     )
+
+
+def _encode_embedding(vec: Optional[list[float]]) -> Tuple[Optional[bytes], Optional[int]]:
+    if not vec:
+        return None, None
+    arr = np.array(vec, dtype=np.float32)
+    arr = _normalize(arr)
+    return arr.tobytes(), int(arr.shape[0])
+
+
+def _decode_embedding(blob: Optional[bytes], dim: Optional[int]) -> Optional[list[float]]:
+    if blob is None or dim is None:
+        return None
+    arr = np.frombuffer(blob, dtype=np.float32)
+    if arr.shape[0] != dim:
+        return None
+    return arr.tolist()
+
+
+def _normalize(vec: np.ndarray) -> np.ndarray:
+    norm = np.linalg.norm(vec)
+    if norm == 0 or not np.isfinite(norm):
+        return vec
+    return vec / norm
+
+
+def _parse_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except Exception:
+        return None
 
 
 # ---------------------------------------------------------------------------

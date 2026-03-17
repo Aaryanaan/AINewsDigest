@@ -50,7 +50,9 @@ def ensure_db(conn: sqlite3.Connection) -> None:
             word_count INTEGER,
             canonical_url TEXT,
             guid TEXT,
-            language TEXT
+            language TEXT,
+            embedding_dim INTEGER,
+            embedding_model TEXT
         );
         """
     )
@@ -59,6 +61,8 @@ def ensure_db(conn: sqlite3.Connection) -> None:
         CREATE UNIQUE INDEX IF NOT EXISTS idx_articles_url ON articles(url);
         """
     )
+    _ensure_column(conn, "articles", "embedding_dim", "INTEGER")
+    _ensure_column(conn, "articles", "embedding_model", "TEXT")
     conn.commit()
 
 
@@ -93,6 +97,12 @@ def collect_categories(entry) -> Optional[str]:
     if not terms:
         return None
     return ",".join(terms)
+
+
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, coltype: str) -> None:
+    cols = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+    if column not in cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {coltype}")
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=8))

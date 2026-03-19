@@ -62,13 +62,9 @@ def rank_articles(conn, user_id, top_k=10):
     user_vec = load_user_embedding(conn, user_id)
     if user_vec is None:
         return []
-
     articles = load_candidate_articles(conn)
-
     scored = compute_scores(user_vec, articles)
-
     ranked = sorted(scored, key=lambda x: x[1], reverse=True)
-
     return ranked[:top_k]
 
 def format_results(ranked):

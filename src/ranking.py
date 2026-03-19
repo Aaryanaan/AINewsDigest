@@ -85,12 +85,3 @@ def format_results(ranked):
 def get_top_articles_for_user(conn, user_id, top_k=10):
     ranked = rank_articles(conn, user_id, top_k)
     return format_results(ranked)
-
-def apply_time_decay(score, published_at):
-    if not published_at:
-        return score
-
-    age_days = (datetime.utcnow() - datetime.fromisoformat(published_at)).days
-    decay = 1 / (1 + 0.1 * age_days)
-
-    return score * decay

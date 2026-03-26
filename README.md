@@ -14,14 +14,17 @@ pip install -r requirements.txt
 python -m src.ingest
 ```
 
-3) Embed articles (after ingest):
+3) End-to-end pipeline (ingest → clean → embed → interests → rank):
+```
+python -m pipeline.run_pipeline
+```
+Skip steps with flags, e.g. `python -m pipeline.run_pipeline --skip-ingest --skip-clean` when data is already present.
+
+4) Individual steps (if running manually):
 ```
 python -m pipeline.embed_articles
-```
-
-4) Build user interest embeddings (after interactions exist):
-```
 python -m pipeline.build_user_interests
+python -m src.rank
 ```
 
 ## What it does

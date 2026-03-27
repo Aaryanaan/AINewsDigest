@@ -197,6 +197,7 @@ def format_results(ranked):
     return [
         {
             "id": row["id"],
+            "content": row["content"], 
             "title": row["title"],
             "source": row["source"],
             "score": score,

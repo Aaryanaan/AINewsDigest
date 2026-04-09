@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% set current_user_id = user.user_id %}
+{% block title %}Digest — {{ user.display_name or user.email }}{% endblock %}
+
+{% block content %}
+<div class="digest-header mb-4">
+  <h2 class="mb-0">
+    {{ user.display_name or user.email }}'s Digest
+  </h2>
+  <small class="text-muted">
+    Top {{ articles|length }} articles &middot;
+    {{ user.preferences.digest_frequency.value|capitalize }} &middot;
+    {{ user.preferences.timezone }}
+  </small>
+  {% if user.interests.interest_topics %}
+  <div class="mt-2">
+    {% for topic in user.interests.interest_topics %}
+    <span class="badge bg-secondary me-1">{{ topic }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{% if articles %}
+<div class="row g-3">
+  {% for a in articles %}
+  <div class="col-12">
+    <div class="card article-card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+          <h5 class="card-title mb-0">
+            <a href="{{ a.url if a.url else '#' }}" target="_blank" rel="noopener"
+               class="text-decoration-none text-dark stretched-link">
+              {{ a.title or "Untitled" }}
+            </a>
+          </h5>
+          <span class="badge bg-primary score-badge text-nowrap">
+            {{ "%.3f"|format(a.score) }}
+          </span>
+        </div>
+        <div class="mb-2">
+          <span class="badge bg-light text-dark border source-tag me-1">{{ a.source or "Unknown" }}</span>
+        </div>
+        {% if a.content %}
+        <p class="card-text text-muted small">
+          {{ a.content[:200] }}{% if a.content|length > 200 %}…{% endif %}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+  No ranked articles found. Make sure the pipeline has run
+  (<code>python -m pipeline.run_pipeline</code>).
+</div>
+{% endif %}
+{% endblock %}

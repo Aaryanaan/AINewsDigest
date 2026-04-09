@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Select User — AI News Digest{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-4">Select a user</h2>
+    {% if users %}
+    <div class="list-group">
+      {% for u in users %}
+      <a href="/digest/{{ u.user_id }}"
+         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ u.display_name or u.email }}</strong>
+          {% if u.display_name %}<br><small class="text-muted">{{ u.email }}</small>{% endif %}
+        </div>
+        <span class="badge bg-primary rounded-pill">{{ u.preferences.max_articles }} articles</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+      No active users found. Run the pipeline to add users.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

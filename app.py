@@ -9,6 +9,8 @@ from flask import Flask, render_template, redirect, url_for, abort
 from src.db import get_connection, ensure_all_tables
 from src.user_schema import get_all_active_users, get_user_by_id
 from src.ranking import get_top_articles_for_user
+from src.summarization import generate_digest
+from src.llm_client import OpenAILLM
 
 app = Flask(__name__)
 
@@ -33,13 +35,25 @@ def index():
 def digest(user_id):
     conn = get_db()
     user = get_user_by_id(conn, user_id)
+
     if user is None:
         conn.close()
         abort(404)
-    articles = get_top_articles_for_user(conn, user_id, top_k=user.preferences.max_articles)
+
+    articles = get_top_articles_for_user(
+        conn, user_id, top_k=user.preferences.max_articles
+    )
+    llm = OpenAILLM()
+    digest_text = generate_digest(llm, articles)
     all_users = get_all_active_users(conn)
     conn.close()
-    return render_template("digest.html", user=user, articles=articles, all_users=all_users)
+    return render_template(
+        "digest.html",
+        user=user,
+        articles=articles,
+        digest_text=digest_text,
+        all_users=all_users,
+    )
 
 
 @app.route("/articles")

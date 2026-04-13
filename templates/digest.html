@@ -12,6 +12,7 @@
     {{ user.preferences.digest_frequency.value|capitalize }} &middot;
     {{ user.preferences.timezone }}
   </small>
+
   {% if user.interests.interest_topics %}
   <div class="mt-2">
     {% for topic in user.interests.interest_topics %}
@@ -19,6 +20,10 @@
     {% endfor %}
   </div>
   {% endif %}
+  <h2 class="mt-3">Weekly Summary</h2>
+  <div class="digest-box">
+    <pre>{{ digest_text }}</pre>
+  </div>
 </div>
 
 {% if articles %}

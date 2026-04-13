@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 
 from pipeline import embed_articles, build_user_interests, clean_articles
+from src import interaction_ingestion
 from src import ingest, rank
-
 
 def run_step(enabled: bool, label: str, fn) -> None:
     if not enabled:
@@ -28,6 +28,7 @@ def main() -> None:
     run_step(not args.skip_ingest, "ingest", ingest.main)
     run_step(not args.skip_clean, "clean", clean_articles.clean_articles)
     run_step(not args.skip_embed, "embed", embed_articles.main)
+    run_step(True, "seed_users", interaction_ingestion.main)
     run_step(not args.skip_interests, "build_user_interests", build_user_interests.main)
     run_step(not args.skip_rank, "rank", rank.main)
 

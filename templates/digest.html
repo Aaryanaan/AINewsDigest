@@ -1,50 +1,73 @@
 {% extends "base.html" %}
 {% set current_user_id = user.user_id %}
-{% block title %}Digest — {{ user.display_name or user.email }}{% endblock %}
+{% block title %}{{ user.display_name or user.email }}'s Digest — AI News Digest{% endblock %}
 
 {% block content %}
-<div class="digest-header mb-4">
-  <h2 class="mb-0">
-    {{ user.display_name or user.email }}'s Digest
-  </h2>
-  <small class="text-muted">
-    Top {{ articles|length }} articles &middot;
-    {{ user.preferences.digest_frequency.value|capitalize }} &middot;
-    {{ user.preferences.timezone }}
-  </small>
-  {% if user.interests.interest_topics %}
-  <div class="mt-2">
-    {% for topic in user.interests.interest_topics %}
-    <span class="badge bg-secondary me-1">{{ topic }}</span>
-    {% endfor %}
+<div class="digest-header mb-4 d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <div class="small text-muted text-uppercase fw-semibold" style="letter-spacing:1px;">
+      Your digest
+    </div>
+    <h2 class="mb-1">
+      Hi, {{ user.display_name or user.email }}
+    </h2>
+    <div class="text-muted small">
+      Top {{ articles|length }} stories ·
+      {{ user.preferences.digest_frequency.value|capitalize }} ·
+      {{ user.preferences.timezone }}
+    </div>
+    {% if user.interests.interest_topics %}
+    <div class="mt-2">
+      {% for topic in user.interests.interest_topics %}
+      <span class="interest-chip">{{ topic }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
 </div>
 
 {% if articles %}
 <div class="row g-3">
   {% for a in articles %}
+  {% set match_dots = ((a.score * 5) | round(0, 'ceil')) | int %}
+  {% set preview = a.summary or a.content %}
   <div class="col-12">
     <div class="card article-card h-100">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
           <h5 class="card-title mb-0">
-            <a href="{{ a.url if a.url else '#' }}" target="_blank" rel="noopener"
-               class="text-decoration-none text-dark stretched-link">
+            <a href="{{ a.url or '#' }}" target="_blank" rel="noopener"
+               class="text-decoration-none text-dark">
               {{ a.title or "Untitled" }}
             </a>
           </h5>
-          <span class="badge bg-primary score-badge text-nowrap">
-            {{ "%.3f"|format(a.score) }}
+          <div class="match-meter text-nowrap" title="Personalization match">
+            {% for i in range(5) %}
+              <span class="match-dot {% if i < match_dots %}on{% endif %}"></span>
+            {% endfor %}
+            {% if show_scores %}
+              <span class="badge bg-light text-dark ms-1">{{ "%.3f"|format(a.score) }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="mb-2 small text-muted d-flex flex-wrap gap-2 align-items-center">
+          <span class="badge bg-light text-dark border source-tag">
+            {{ a.source or "Unknown" }}
           </span>
+          {% if a.published_at %}
+            <span>· {{ a.published_at[:10] }}</span>
+          {% endif %}
         </div>
-        <div class="mb-2">
-          <span class="badge bg-light text-dark border source-tag me-1">{{ a.source or "Unknown" }}</span>
-        </div>
-        {% if a.content %}
-        <p class="card-text text-muted small">
-          {{ a.content[:200] }}{% if a.content|length > 200 %}…{% endif %}
+        {% if preview %}
+        <p class="card-text text-secondary mb-2">
+          {{ preview[:260] }}{% if preview|length > 260 %}…{% endif %}
         </p>
+        {% endif %}
+        {% if a.url %}
+        <a href="{{ a.url }}" target="_blank" rel="noopener"
+           class="small fw-semibold text-decoration-none">
+          Read full article &rarr;
+        </a>
         {% endif %}
       </div>
     </div>
@@ -53,8 +76,8 @@
 </div>
 {% else %}
 <div class="alert alert-info">
-  No ranked articles found. Make sure the pipeline has run
-  (<code>python -m pipeline.run_pipeline</code>).
+  <strong>No stories yet.</strong>
+  Your digest will appear here once articles have been ingested and ranked.
 </div>
 {% endif %}
 {% endblock %}

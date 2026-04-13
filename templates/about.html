@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}About — AI News Digest{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <h2 class="mb-3">About AI News Digest</h2>
+    <p class="lead text-muted">
+      AI News Digest is a personalized reading feed that uses semantic
+      embeddings to match stories to what you actually care about.
+    </p>
+
+    <h5 class="mt-4">How it works</h5>
+    <ol class="text-secondary">
+      <li><strong>Ingest.</strong> We pull articles from a curated list of RSS feeds.</li>
+      <li><strong>Embed.</strong> Each article is converted into a vector that captures its meaning.</li>
+      <li><strong>Match.</strong> Your interest profile is compared against every article using cosine similarity.</li>
+      <li><strong>Rank.</strong> We blend the match score with a recency boost and limit how many stories come from any single source.</li>
+      <li><strong>Summarize.</strong> Short previews let you skim fast and click through only to what grabs you.</li>
+    </ol>
+
+    <h5 class="mt-4">Privacy</h5>
+    <p class="text-secondary">
+      Profiles are stored locally alongside articles — nothing is shared with third parties.
+    </p>
+  </div>
+</div>
+{% endblock %}

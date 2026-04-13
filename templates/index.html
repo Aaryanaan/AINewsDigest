@@ -1,28 +1,86 @@
 {% extends "base.html" %}
-{% block title %}Select User — AI News Digest{% endblock %}
+{% block title %}AI News Digest — Your personalized news feed{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <h2 class="mb-4">Select a user</h2>
-    {% if users %}
-    <div class="list-group">
-      {% for u in users %}
-      <a href="/digest/{{ u.user_id }}"
-         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-        <div>
-          <strong>{{ u.display_name or u.email }}</strong>
-          {% if u.display_name %}<br><small class="text-muted">{{ u.email }}</small>{% endif %}
-        </div>
-        <span class="badge bg-primary rounded-pill">{{ u.preferences.max_articles }} articles</span>
-      </a>
-      {% endfor %}
+<section class="hero text-center">
+  <h1 class="mb-3">News that actually matters to you.</h1>
+  <p class="lead text-muted mb-4 mx-auto" style="max-width: 640px;">
+    AI News Digest reads the web for you — ingesting feeds from trusted sources,
+    ranking stories against your interests, and surfacing the handful you'll
+    want to read today.
+  </p>
+  <a href="#profiles" class="btn btn-primary btn-lg px-4">Open your digest</a>
+</section>
+
+<section class="row g-3 mb-5">
+  <div class="col-md-4">
+    <div class="value-prop">
+      <div class="icon">1</div>
+      <h6 class="fw-bold mb-1">Personalized ranking</h6>
+      <p class="small text-muted mb-0">
+        Semantic embeddings match stories to your interests — not just keywords.
+      </p>
     </div>
-    {% else %}
-    <div class="alert alert-warning">
-      No active users found. Run the pipeline to add users.
-    </div>
-    {% endif %}
   </div>
-</div>
+  <div class="col-md-4">
+    <div class="value-prop">
+      <div class="icon">2</div>
+      <h6 class="fw-bold mb-1">Fresh &amp; diverse</h6>
+      <p class="small text-muted mb-0">
+        A recency boost keeps your digest current, and source limits prevent
+        one outlet from dominating.
+      </p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="value-prop">
+      <div class="icon">3</div>
+      <h6 class="fw-bold mb-1">Summarized for you</h6>
+      <p class="small text-muted mb-0">
+        Skim concise summaries and jump into the full article only when you
+        want more.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="profiles">
+  <h4 class="mb-3">Choose a profile</h4>
+  {% if users %}
+  <div class="row g-3">
+    {% for u in users %}
+    <div class="col-md-6">
+      <a href="/digest/{{ u.user_id }}"
+         class="text-decoration-none text-reset d-block">
+        <div class="profile-card p-3 d-flex align-items-center gap-3">
+          <div class="avatar">
+            {{ (u.display_name or u.email)[0]|upper }}
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-semibold">{{ u.display_name or u.email }}</div>
+            {% if u.interests and u.interests.interest_topics %}
+              <div class="mt-1">
+                {% for topic in u.interests.interest_topics[:4] %}
+                  <span class="interest-chip">{{ topic }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="small text-muted">{{ u.email }}</div>
+            {% endif %}
+          </div>
+          <div class="text-end">
+            <div class="small text-muted">Daily</div>
+            <div class="fw-semibold">{{ u.preferences.max_articles }} stories</div>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-warning">
+    No profiles yet. Run the pipeline to get started.
+  </div>
+  {% endif %}
+</section>
 {% endblock %}

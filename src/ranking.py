@@ -40,7 +40,8 @@ def load_user_embedding(conn, user_id):
 def load_candidate_articles(conn, limit=500):
     return conn.execute(
         """
-        SELECT id, title, content, embedding, embedding_dim, source, published_at
+        SELECT id, title, content, summary, url, embedding, embedding_dim,
+               source, published_at
         FROM articles
         WHERE embedding IS NOT NULL
         ORDER BY published_at DESC
@@ -197,7 +198,10 @@ def format_results(ranked):
     return [
         {
             "id": row["id"],
-            "content": row["content"], 
+            "content": row["content"],
+            "summary": row["summary"] if "summary" in row.keys() else None,
+            "url": row["url"] if "url" in row.keys() else None,
+            "published_at": row["published_at"] if "published_at" in row.keys() else None,
             "title": row["title"],
             "source": row["source"],
             "score": score,

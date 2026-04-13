@@ -1,47 +1,61 @@
 {% extends "base.html" %}
-{% block title %}All Articles — AI News Digest{% endblock %}
+{% block title %}Browse all articles — AI News Digest{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="mb-0">All Articles <span class="text-muted fs-5">(latest 100)</span></h2>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h2 class="mb-0">Browse all articles</h2>
+    <div class="text-muted small">Latest 100 stories across every source we track.</div>
+  </div>
 </div>
 
+<form class="row g-2 mb-4" method="get">
+  <div class="col-md-6">
+    <input type="text" name="q" value="{{ query or '' }}"
+           class="form-control" placeholder="Search titles and summaries…" />
+  </div>
+  <div class="col-md-4">
+    <select name="source" class="form-select">
+      <option value="">All sources</option>
+      {% for s in sources %}
+        <option value="{{ s }}" {% if s == selected_source %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2 d-grid">
+    <button class="btn btn-primary" type="submit">Filter</button>
+  </div>
+</form>
+
 {% if articles %}
-<div class="table-responsive">
-  <table class="table table-hover bg-white rounded shadow-sm">
-    <thead class="table-dark">
-      <tr>
-        <th>Title</th>
-        <th>Source</th>
-        <th>Published</th>
-        <th>Words</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for a in articles %}
-      <tr>
-        <td>
+<div class="row g-3">
+  {% for a in articles %}
+  <div class="col-md-6">
+    <div class="card article-card h-100">
+      <div class="card-body">
+        <div class="small text-muted mb-1 d-flex justify-content-between">
+          <span class="badge bg-light text-dark border source-tag">{{ a.source or "?" }}</span>
+          <span>{{ (a.published_at or "")[:10] }}</span>
+        </div>
+        <h6 class="card-title mb-2">
           <a href="{{ a.url or '#' }}" target="_blank" rel="noopener"
-             class="text-decoration-none fw-semibold">
+             class="text-decoration-none text-dark">
             {{ a.title or "Untitled" }}
           </a>
-          {% if a.summary %}
-          <br><small class="text-muted">{{ a.summary[:120] }}{% if a.summary|length > 120 %}…{% endif %}</small>
-          {% endif %}
-        </td>
-        <td><span class="badge bg-secondary">{{ a.source or "?" }}</span></td>
-        <td class="text-nowrap">
-          <small>{{ (a.published_at or "")[:10] }}</small>
-        </td>
-        <td><small>{{ a.word_count or "—" }}</small></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        </h6>
+        {% if a.summary %}
+        <p class="card-text small text-secondary mb-0">
+          {{ a.summary[:180] }}{% if a.summary|length > 180 %}…{% endif %}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% else %}
 <div class="alert alert-info">
-  No articles found. Run <code>python -m src.ingest</code> to ingest articles.
+  No articles match your filters. Try clearing the search or selecting a different source.
 </div>
 {% endif %}
 {% endblock %}

@@ -21,7 +21,6 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
-
 # ---------------------------------------------------------------------------
 # Event type enum
 # ---------------------------------------------------------------------------
@@ -339,9 +338,9 @@ def generate_mock_events(
 # CLI — seed users + mock interactions into the shared DB
 # ---------------------------------------------------------------------------
 
-if __name__ == "__main__":
-    from db import get_connection, ensure_all_tables
-    from user_schema import (
+def main():
+    from src.db import get_connection, ensure_all_tables
+    from src.user_schema import (
         UserProfile, UserPreferences, DigestFrequency,
         upsert_user, get_all_active_users,
     )

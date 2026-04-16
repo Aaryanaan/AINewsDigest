@@ -115,4 +115,50 @@ def ensure_all_tables(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_interactions_article ON interactions(article_id);
         """
     )
+
+    # Digest run table for timed personalized digest generation
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS digest_runs (
+            digest_id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            window_key TEXT NOT NULL,
+            window_start TEXT,
+            window_end TEXT,
+            scheduled_for TEXT,
+            status TEXT NOT NULL,
+            article_ids TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+        """
+    )
+    conn.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_digest_runs_user_window
+        ON digest_runs(user_id, window_key);
+        """
+    )
+
+    # Per-user per-window summary cache
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS article_summaries (
+            user_id TEXT NOT NULL,
+            article_id TEXT NOT NULL,
+            window_key TEXT NOT NULL,
+            summary_text TEXT NOT NULL,
+            model_name TEXT,
+            generated_at TEXT NOT NULL,
+            expires_at TEXT,
+            PRIMARY KEY (user_id, article_id, window_key)
+        );
+        """
+    )
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_article_summaries_window
+        ON article_summaries(window_key);
+        """
+    )
     conn.commit()

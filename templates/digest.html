@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Personalized Timed News Summary</h1>
+
+  {% if not has_user %}
+    <div class="card">{{ message }}</div>
+  {% else %}
+    <p class="meta">
+      User: {{ user.display_name or user.email }} · Frequency: {{ user.preferences.digest_frequency.value }} ·
+      Time: {{ user.preferences.digest_time }} {{ user.preferences.timezone }}
+    </p>
+    <p class="meta">
+      Digest: {{ digest.digest_id }} · Window: {{ digest.window_key }} · Articles: {{ articles|length }}
+    </p>
+
+    <div class="actions">
+      <form method="post" action="/digest/refresh">
+        <input type="hidden" name="force_refresh" value="1" />
+        <button type="submit">Refresh Summaries</button>
+      </form>
+    </div>
+
+    {% if articles|length == 0 %}
+      <div class="card">No ranked articles available yet. Run pipeline embedding/interests/ranking first.</div>
+    {% endif %}
+
+    {% for article in articles %}
+      <article class="card">
+        <h3><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title or article.url }}</a></h3>
+        <p class="meta">{{ article.source or "Unknown source" }} · Score: {{ "%.3f"|format(article.score) }}</p>
+        <p>{{ article.summary_text }}</p>
+      </article>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

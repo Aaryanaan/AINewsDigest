@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI News Digest</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f7f7f8;
+        margin: 0;
+        color: #1f2937;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .meta {
+        color: #6b7280;
+        font-size: 13px;
+      }
+      .actions {
+        margin: 16px 0 24px;
+      }
+      button {
+        background: #111827;
+        border: 0;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      a {
+        color: #1d4ed8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

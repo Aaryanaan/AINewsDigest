@@ -1,8 +1,13 @@
 [
-  "http://feeds.bbci.co.uk/news/world/rss.xml",
+  "http://feeds.bbci.co.uk/news/rss.xml",
+  "https://feeds.reuters.com/reuters/topNews",
   "https://feeds.reuters.com/reuters/technologyNews",
   "https://feeds.reuters.com/reuters/businessNews",
-  "https://feeds.apnews.com/apf-topnews",
-  "http://feeds.feedburner.com/TechCrunch/",
-  "http://feeds.arstechnica.com/arstechnica/index/"
+  "https://apnews.com/rss",
+  "https://www.theguardian.com/world/rss",
+  "https://techcrunch.com/feed/",
+  "http://feeds.arstechnica.com/arstechnica/index/",
+  "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+  "https://www.aljazeera.com/xml/rss/all.xml",
+  "https://www.dw.com/en/top-stories/s-9097?maca=en-rss-en-all-1573-rdf"
 ]

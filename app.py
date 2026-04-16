@@ -11,9 +11,9 @@ from src.user_schema import get_all_active_users, get_user_by_id
 from src.ranking import get_top_articles_for_user
 from src.summarization import generate_digest
 from src.llm_client import OpenAILLM
+from src.test_digest import MockLLM
 
 app = Flask(__name__)
-
 
 def get_db():
     conn = get_connection()
@@ -58,7 +58,7 @@ def digest(user_id):
     articles = get_top_articles_for_user(
         conn, user_id, top_k=user.preferences.max_articles
     )
-    llm = OpenAILLM()
+    llm = MockLLM()
     digest_text = generate_digest(llm, articles)
     all_users = get_all_active_users(conn)
     conn.close()

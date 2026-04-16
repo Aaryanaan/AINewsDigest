@@ -1,6 +1,8 @@
-from ranking import get_top_articles_for_user
-from summarization import generate_digest, format_digest_output
-from interaction_ingestion import get_all_active_users
+from flask import Flask, render_template, redirect, url_for, abort, request
+from src.db import get_connection, ensure_all_tables
+from src.user_schema import get_all_active_users, get_user_by_id
+from src.ranking import get_top_articles_for_user
+from src.summarization import generate_digest, format_digest_output
 from src.llm_client import OpenAILLM
 
 # Mock LLM (so you can test without API first)

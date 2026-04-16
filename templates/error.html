@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} — AI News Digest{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <div style="font-size: 4rem; font-weight: 800; color: var(--brand);">{{ code }}</div>
+  <p class="lead text-muted">{{ message }}</p>
+  <a href="/" class="btn btn-primary mt-2">Back to home</a>
+</div>
+{% endblock %}

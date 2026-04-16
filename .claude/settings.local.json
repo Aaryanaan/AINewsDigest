@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import app; print\\('ok'\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('app.py'\\).read\\(\\)\\); ast.parse\\(open\\('src/ranking.py'\\).read\\(\\)\\); print\\('syntax ok'\\)\")"
+    ]
+  }
+}

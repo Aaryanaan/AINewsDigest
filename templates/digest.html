@@ -1,36 +1,94 @@
 {% extends "base.html" %}
+{% set current_user_id = user.user_id %}
+{% block title %}{{ user.display_name or user.email }}'s Digest — AI News Digest{% endblock %}
 
 {% block content %}
-  <h1>Personalized Timed News Summary</h1>
-
-  {% if not has_user %}
-    <div class="card">{{ message }}</div>
-  {% else %}
-    <p class="meta">
-      User: {{ user.display_name or user.email }} · Frequency: {{ user.preferences.digest_frequency.value }} ·
-      Time: {{ user.preferences.digest_time }} {{ user.preferences.timezone }}
-    </p>
-    <p class="meta">
-      Digest: {{ digest.digest_id }} · Window: {{ digest.window_key }} · Articles: {{ articles|length }}
-    </p>
-
-    <div class="actions">
-      <form method="post" action="/digest/refresh">
-        <input type="hidden" name="force_refresh" value="1" />
-        <button type="submit">Refresh Summaries</button>
-      </form>
+<div class="digest-header mb-4 d-flex flex-wrap justify-content-between align-items-start gap-2">
+  <div>
+    <div class="small text-muted text-uppercase fw-semibold" style="letter-spacing:1px;">
+      Your digest
     </div>
-
-    {% if articles|length == 0 %}
-      <div class="card">No ranked articles available yet. Run pipeline embedding/interests/ranking first.</div>
+    <h2 class="mb-1">
+      Hi, {{ user.display_name or user.email }}
+    </h2>
+    <div class="text-muted small">
+      Top {{ articles|length }} stories ·
+      {{ user.preferences.digest_frequency.value|capitalize }} ·
+      {{ user.preferences.timezone }}
+    </div>
+    {% if user.interests.interest_topics %}
+    <div class="mt-2">
+      {% for topic in user.interests.interest_topics %}
+      <span class="interest-chip">{{ topic }}</span>
+      {% endfor %}
+    </div>
     {% endif %}
+  </div>
+</div>
 
-    {% for article in articles %}
-      <article class="card">
-        <h3><a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">{{ article.title or article.url }}</a></h3>
-        <p class="meta">{{ article.source or "Unknown source" }} · Score: {{ "%.3f"|format(article.score) }}</p>
-        <p>{{ article.summary_text }}</p>
-      </article>
-    {% endfor %}
-  {% endif %}
+{% if articles %}
+<div class="row g-3">
+  {% for a in articles %}
+  {% set match_dots = ((a.score * 5) | round(0, 'ceil')) | int %}
+  {% set preview = a.summary or a.content %}
+  <div class="col-12">
+    <div class="card article-card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+          <h5 class="card-title mb-0">
+            <a href="{{ a.url or '#' }}" target="_blank" rel="noopener"
+               class="text-decoration-none text-dark">
+              {{ a.title or "Untitled" }}
+            </a>
+          </h5>
+          <div class="match-meter text-nowrap" title="Personalization match">
+            {% for i in range(5) %}
+              <span class="match-dot {% if i < match_dots %}on{% endif %}"></span>
+            {% endfor %}
+            {% if show_scores %}
+              <span class="badge bg-light text-dark ms-1">{{ "%.3f"|format(a.score) }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="mb-2 small text-muted d-flex flex-wrap gap-2 align-items-center">
+          <span class="badge bg-light text-dark border source-tag">
+            {{ a.source or "Unknown" }}
+          </span>
+          {% if a.published_at %}
+            <span>· {{ a.published_at[:10] }}</span>
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="small text-muted">
+          Digest: {{ digest.digest_id if digest is defined else "n/a" }}
+          {% if digest is defined %}· Window: {{ digest.window_key }}{% endif %}
+        </div>
+        <form method="post" action="/digest/refresh">
+          <input type="hidden" name="force_refresh" value="1" />
+          <button type="submit" class="btn btn-sm btn-dark">Refresh Summaries</button>
+        </form>
+      </div>
+          {% endif %}
+        </div>
+        {% if preview %}
+        <p class="card-text text-secondary mb-2">
+          {{ preview[:260] }}{% if preview|length > 260 %}…{% endif %}
+        {% set preview = a.summary_text or a.summary or a.content %}
+        {% endif %}
+        {% if a.url %}
+        <a href="{{ a.url }}" target="_blank" rel="noopener"
+           class="small fw-semibold text-decoration-none">
+          Read full article &rarr;
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+  <strong>No stories yet.</strong>
+  Your digest will appear here once articles have been ingested and ranked.
+</div>
+{% endif %}
 {% endblock %}
